@@ -6,7 +6,7 @@ import openai
 app = Flask(__name__)
 
 # Initialize the OpenAI API client
-openai.api_key = 'Your_KEY'
+openai.api_key = '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'
 
 @app.route('/')
 def index():
@@ -23,4 +23,5 @@ def chat():
     return jsonify({'reply': reply})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
