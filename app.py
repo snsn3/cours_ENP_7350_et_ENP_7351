@@ -1,12 +1,11 @@
-#pip install openai==0.28 # install openai library if using this for the first time
-
 from flask import Flask, render_template, request, jsonify
 import openai
+import os
 
 app = Flask(__name__)
 
 # Initialize the OpenAI API client
-openai.api_key = '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'
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 @app.route('/')
 def index():
