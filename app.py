@@ -6,7 +6,7 @@ import openai
 app = Flask(__name__)
 
 # Initialize the OpenAI API client
-openai.api_key = ''
+openai.api_key = 'Your_KEY'
 
 @app.route('/')
 def index():
