@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SN Experimental Policy Briefer</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #809096;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container { 
+            width: 90%; 
+            max-width: 800px; 
+            background-color: #fcfbfb; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background-color: #000408; 
+            color: #ffffff; 
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .chat-box { 
+            padding: 15px; 
+            flex-grow: 1;
+            overflow-y: auto; 
+            border-bottom: 1px solid #f0f0f0; 
+        }
+        .chat-input-container {
+            display: flex;
+            border-top: 1px solid #f0f0f0;
+        }
+        .chat-input { 
+            flex: 1; 
+            padding: 10px; 
+            border: none; 
+            font-size: 1em;
+        }
+        .chat-input:focus {
+            outline: none;
+        }
+        .send-button {
+            background-color: #113c03; 
+            color: #f4f6f6; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+        .chat-message {
+            margin-bottom: 15px;
+        }
+        .chat-message strong {
+            color: #007bff;
+        }
+
+        @media (max-width: 600px) {
+            .chat-header {
+                font-size: 1.2em;
+                padding: 10px;
+            }
+            .send-button {
+                padding: 10px;
+            }
+            .chat-input {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">SN Experimental Policy Briefer</div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" class="chat-input" placeholder="I am being trained as a policy expert. Type your Briefing Notes request here!">
+            <button class="send-button" id="send-button">Send</button>
+        </div>
+    </div>
+    <script>
+        const chatInput = document.getElementById('chat-input');
+        const chatBox = document.getElementById('chat-box');
+        const sendButton = document.getElementById('send-button');
+
+        function addMessage(content, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message');
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${content}`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = chatInput.value;
+            if (userInput.trim() !== '') {
+                addMessage(userInput, 'You');
+                chatInput.value = '';
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userInput })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage(data.reply, 'Policy Intern');
+                });
+            }
+        }
+
+        chatInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        sendButton.addEventListener('click', sendMessage);
+    </script>
+</body>
+</html>
