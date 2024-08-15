@@ -89,7 +89,7 @@
         <div class="chat-header">SN Experimental Policy Briefer</div>
         <div class="chat-box" id="chat-box"></div>
         <div class="chat-input-container">
-            <input type="text" id="chat-input" class="chat-input" placeholder="I am being trained as a policy expert. Type your Briefing Notes request here!">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Je suis un assistant IA basé sur le modèle GPT d'OpenAI. Je suis formé par Stany pour aider les étudiants avec ENP7350 & ENP7351 !!">
             <button class="send-button" id="send-button">Send</button>
         </div>
     </div>
@@ -121,7 +121,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    addMessage(data.reply, 'Policy Intern');
+                    addMessage(data.reply, 'Assistant IA pour les cours ENP7350 & ENP7351 avec Stany Nzobonimpa, chargé d''enseignement');
                 });
             }
         }
