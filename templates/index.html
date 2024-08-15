@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -25,6 +26,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
             animation: fadeIn 0.5s ease-in-out;
         }
         .chat-header {
@@ -100,11 +102,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .contact-info {
-            margin-top: 20px;
+            width: 100%;
             color: #ffffff;
             font-size: 0.9em;
             text-align: center;
             padding: 10px;
+            background-color: #333b44;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -116,9 +120,9 @@
             <input type="text" id="chat-input" class="chat-input" placeholder="Je suis un assistant IA pour aider les étudiants avec ENP7350 & ENP7351!" aria-label="Chat input">
             <button class="send-button" id="send-button" aria-label="Send message">Send</button>
         </div>
-        <div class="contact-info">
-            Pour toute question ou assistance, contactez Stany à <a href="mailto:Stany.Nzobonimpa@enap.ca" style="color: #ffffff; text-decoration: underline;">Stany.Nzobonimpa@enap.ca</a>
-        </div>
+    </div>
+    <div class="contact-info">
+        Pour toute question ou assistance, contactez Stany à <a href="mailto:Stany.Nzobonimpa@enap.ca" style="color: #ffffff; text-decoration: underline;">Stany.Nzobonimpa@enap.ca</a>
     </div>
     <script>
         const chatInput = document.getElementById('chat-input');
