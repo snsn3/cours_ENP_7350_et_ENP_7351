@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import os
 import time
 import openai
@@ -12,7 +12,7 @@ ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
 @app.route('/')
 def index():
-    return "Assistant is running."
+    return render_template('index.html') 
 
 @app.route('/chat', methods=['POST'])
 def chat():
