@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import time
-import openai 
+from openai import OpenAI
 
 app = Flask(__name__)
 
+# Initialize the OpenAI API client
 openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI()
 
 ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
@@ -17,20 +19,29 @@ def index():
 def chat():
     user_input = request.json.get('message')
 
-    # Create a completion with OpenAI's GPT-4 model
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini", 
-            messages=[
-                {"role": "user", "content": user_input}
-            ]
+        # Create a thread with the user's message
+        thread = client.beta.threads.create(
+            messages=[{"role": "user", "content": user_input}]
         )
-        
+
+        # Submit the thread to the assistant (as a new run)
+        run = client.beta.threads.runs.create(thread_id=thread.id, assistant_id=ASSISTANT_ID)
+
+        # Wait for the run to complete
+        while run.status != "completed":
+            run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+            time.sleep(1)
+
+        # Get the latest message from the thread
+        message_response = client.beta.threads.messages.list(thread_id=thread.id)
+        messages = message_response.data
+
         # Extract the assistant's reply
-        reply = response['choices'][0]['message']['content']
-        
-        return jsonify({'reply': reply})
-    
+        latest_message = messages[0].content[0].text.value
+
+        return jsonify({'reply': latest_message})
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
