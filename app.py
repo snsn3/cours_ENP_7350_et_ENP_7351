@@ -12,7 +12,7 @@ ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
 @app.route('/')
 def index():
-    return render_template('index.html') 
+    return render_template('index.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -30,17 +30,29 @@ def chat():
         )
 
         # Submit the thread to the assistant (as a new run)
-        run = openai.beta.threads.runs.create(thread_id=thread.id, assistant_id=ASSISTANT_ID)
+        run = openai.beta.threads.runs.create(
+            thread_id=thread['id'], 
+            assistant_id=ASSISTANT_ID
+        )
 
-        # Wait for the run to complete
-        while run.status != "completed":
-            run = openai.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+        # Wait for the run to complete by polling its status
+        while run['status'] != "completed":
+            run = openai.beta.threads.runs.retrieve(
+                thread_id=thread['id'], 
+                run_id=run['id']
+            )
             time.sleep(1)
 
         # Retrieve the message from the completed thread
-        message_response = openai.beta.threads.messages.retrieve(thread_id=thread.id, message_id=run.id)
-        message_content = message_response.content[0].text.value
-        annotations = message_response.content[0].text.annotations
+        message_response = openai.beta.threads.messages.retrieve(
+            thread_id=thread['id'], 
+            message_id=run['id']
+        )
+
+        message_content = message_response['content'][0]['text']['value']
+        
+        # You can include annotations if needed
+        # annotations = message_response['content'][0]['text']['annotations']
 
         return jsonify({'reply': message_content})
 
