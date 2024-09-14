@@ -42,23 +42,6 @@ def chat():
         message_content = message_response.content[0].text.value
         annotations = message_response.content[0].text.annotations
 
-        # Process any annotations or citations
-        citations = []
-        for index, annotation in enumerate(annotations):
-            # Replace the text with a footnote
-            message_content = message_content.replace(annotation.text, f' [{index}]')
-
-            # Handle file citations if present
-            if (file_citation := getattr(annotation, 'file_citation', None)):
-                cited_file = openai.files.retrieve(file_citation.file_id)
-                citations.append(f'[{index}] {file_citation.quote} from {cited_file.filename}')
-            elif (file_path := getattr(annotation, 'file_path', None)):
-                cited_file = openai.files.retrieve(file_path.file_id)
-                citations.append(f'[{index}] Click <here> to download {cited_file.filename}')
-        
-        # Append citations to the message
-        message_content += '\n' + '\n'.join(citations)
-
         return jsonify({'reply': message_content})
 
     except Exception as e:
