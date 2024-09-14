@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import time
-from openai import OpenAI
+import openai
 
 app = Flask(__name__)
 
