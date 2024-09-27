@@ -4,15 +4,13 @@ import os
 
 app = Flask(__name__)
 
-
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
-# headers for the OpenAI API call
+# Headers for the OpenAI API call
 HEADERS = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {OPENAI_API_KEY}",
-    "OpenAI-Beta": "assistants=v2" 
+    "Authorization": f"Bearer {OPENAI_API_KEY}"
 }
 
 # Serve main page
@@ -23,7 +21,7 @@ def index():
 # Route for the chat functionality
 @app.route('/chat', methods=['POST'])
 def chat():
-    user_input = request.json.get('message')
+    user_input = request.get_json().get('message')
 
     # Define the payload to be sent to the OpenAI API
     payload = {
@@ -40,7 +38,7 @@ def chat():
 
         # Check if the request was successful
         if response.status_code == 200:
-            assistant_reply = response.json()['choices'][0]['message']['content']
+            assistant_reply = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
             return jsonify({'reply': assistant_reply})
         else:
             # Handle errors (e.g., authentication issues, bad requests)
