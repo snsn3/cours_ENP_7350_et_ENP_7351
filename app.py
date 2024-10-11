@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# initialize client client
+# initialize client 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 #app
 @app.route('/')
@@ -15,7 +15,7 @@ def index():
 def chat():
     user_input = request.json.get('message')
     response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",  
+        model="gpt-4o-mini",  #model choice as of oct. 2024
         messages=[{"role": "user", "content": user_input}]
     )
     reply = response.choices[0].message['content']
