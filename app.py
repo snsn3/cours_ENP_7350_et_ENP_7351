@@ -15,7 +15,7 @@ assistant_id = os.getenv('OPENAI_ASSISTANT_ID')
 def index():
     return render_template('index.html')
 
-@app.route('/ask', methods=['POST'])
+@app.route('/chat', methods=['POST'])
 def ask_assistant():
     data = request.get_json()
     user_message = data.get('message')
