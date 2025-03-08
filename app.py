@@ -14,17 +14,16 @@ def index():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')
-    thread = openai.Threads.create()
-    openai.Threads.Messages.create(
+    thread = client.beta.threads.create()
         thread_id=thread.id,
         role="user",
         content=user_input
     )
-    run = openai.Threads.Runs.create(
+    run = client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id=assistant_id
     )
-    messages = openai.Threads.Messages.list(thread_id=thread.id)
+    messages = client.beta.threads.messages.create(thread_id=thread.id)
     assistant_reply = next((msg['content'] for msg in messages['messages'] if msg['role'] == 'assistant'), "I'm being trained as a policy assistant!")
     return jsonify({'reply': assistant_reply})
 if __name__ == '__main__':
