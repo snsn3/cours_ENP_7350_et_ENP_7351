@@ -4,13 +4,13 @@ import os
 
 app = Flask(__name__)
 
-# initializing client 
+# initialize client 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 #app
 @app.route('/')
 def index():
     return render_template('index.html')
-#app  routin
+#app  route
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')
