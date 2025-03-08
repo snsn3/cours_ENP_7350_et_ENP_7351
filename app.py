@@ -14,7 +14,7 @@ def index():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')
-    thread = openai.Thread.create()
+    thread = openai.Threads.create()
     openai.Threads.Messages.create(
         thread_id=thread.id,
         role="user",
