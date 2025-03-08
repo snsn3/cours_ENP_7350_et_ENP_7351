@@ -1,59 +1,26 @@
-from flask import Flask, request, jsonify, render_template
-from openai import OpenAI
+from flask import Flask, render_template, request, jsonify
+import openai
 import os
-from dotenv import load_dotenv
-import time
-
-load_dotenv()  # Load environment variables from .env
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-assistant_id = os.getenv('OPENAI_ASSISTANT_ID')
 
-# UI route
+# initializing client 
+openai.api_key = os.getenv('OPENAI_API_KEY')
+#app
 @app.route('/')
 def index():
     return render_template('index.html')
-
+#app  routin
 @app.route('/chat', methods=['POST'])
-def ask_assistant():
-    data = request.get_json()
-    user_message = data.get('message')
-
-    if not user_message:
-        return jsonify({'error': 'Message is required'}), 400
-
-    if not assistant_id:
-        return jsonify({'error': 'Assistant ID is not configured'}), 500
-
-    try:
-        thread = client.beta.threads.create()
-        client.beta.threads.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=user_message,
-        )
-
-        run = client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=assistant_id,
-        )
-
-        while True:
-            run_status = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
-            if run_status.status == "completed":
-                messages = client.beta.threads.messages.list(thread_id=thread.id)
-                for message in messages.data:
-                    if message.role == "assistant":
-                        return jsonify({'response': message.content[0].text.value})
-                break
-            time.sleep(1)
-
-        return jsonify({'error': 'Assistant failed to respond'}), 500
-
-    except Exception as e:
-        print(f"Error processing chat: {e}")
-        return jsonify({'error': str(e)}), 500
+def chat():
+    user_input = request.json.get('message')
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",  #model choice as of oct. 2024
+        messages=[{"role": "user", "content": user_input}]
+    )
+    reply = response.choices[0].message['content']
+    return jsonify({'reply': reply})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
