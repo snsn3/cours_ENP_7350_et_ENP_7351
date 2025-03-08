@@ -1,14 +1,18 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
+from typing_extensions import override
+from openai import AssistantEventHandler
 
 # Load environment variables from .env file
 load_dotenv()
+
 app = Flask(__name__)
+
 # Initialize OpenAI client with API key from environment variables
 openai.api_key = os.getenv('OPENAI_API_KEY')
-assistant_id = os.getenv('OPENAI_ASSISTANT_ID')
+assistant_id = os.getenv('OPENAI_ASSISTANT_ID') #You can create the assistant in the openai dashboard or through the api.
 
 # UI route
 @app.route('/')
@@ -34,21 +38,37 @@ def chat():
             content=user_input
         )
 
-        # Create a run to process the thread with the assistant
-        run = openai.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=assistant_id
-        )
+        # Create a Run and stream the response
+        class EventHandler(AssistantEventHandler):
+            @override
+            def on_text_created(self, text) -> None:
+                print(f"\nassistant > ", end="", flush=True)
 
-        # Poll the run status until it's completed
-        while True:
-            run_status = openai.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
-            if run_status.status == 'completed':
-                break
-            elif run_status.status in ['failed', 'cancelled', 'expired']:
-                return jsonify({'error': f'Run failed with status: {run_status.status}'}), 500
-            import time
-            time.sleep(1) #avoid overwhelming the API
+            @override
+            def on_text_delta(self, delta, snapshot):
+                print(delta.value, end="", flush=True)
+
+            def on_tool_call_created(self, tool_call):
+                print(f"\nassistant > {tool_call.type}\n", flush=True)
+
+            def on_tool_call_delta(self, delta, snapshot):
+                if delta.type == 'code_interpreter':
+                    if delta.code_interpreter.input:
+                        print(delta.code_interpreter.input, end="", flush=True)
+                    if delta.code_interpreter.outputs:
+                        print(f"\n\noutput >", flush=True)
+                        for output in delta.code_interpreter.outputs:
+                            if output.type == "logs":
+                                print(f"\n{output.logs}", flush=True)
+
+        # Stream the run
+        with openai.beta.threads.runs.stream(
+            thread_id=thread.id,
+            assistant_id=assistant_id,
+            instructions="Please address the user appropriately. The user has a standard account.",
+            event_handler=EventHandler(),
+        ) as stream:
+            stream.until_done()
 
         # Retrieve the messages from the thread
         messages = openai.beta.threads.messages.list(thread_id=thread.id)
